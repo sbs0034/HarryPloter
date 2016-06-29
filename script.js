@@ -82,19 +82,19 @@ textBoxFiller.push("<button id='copyResistance'>Copy Resistance Data</button>")
   var y_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Current")].split("\n")
 }
 else{
-  var y_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Current")]
+  var y_data = [data[0].values[devicePos[num]][data[0].columns.indexOf("Current")]]
 }
 if(data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)].toString().indexOf("\n")>-1){
   var x_data = data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)].split("\n")
 }
 else{
-  var x_data = data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)]
+  var x_data = [data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)]]
 }
 if(data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")].toString().indexOf("\n")>-1){
   var z_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")].split("\n")
 }
 else{
-  var z_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")]
+  var z_data = [data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")]]
 }
   dataYZ.push({
       y: z_data,
