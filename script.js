@@ -259,15 +259,6 @@ function GetTables(db){
   }
   $("#tableChooser").html("<option></option>"+tableChooserFill)
 }
-
-
-
-
-
-
-
-
-
     graphCounter++;
     function PlotCSVFile() {
         var stream = fs.createReadStream($('#csvFile').val());
