@@ -3,21 +3,267 @@
  */
 // var sqlite3 = require('sqlite3');
 var fs = require("fs");
-var graphCounter = 0;
 var x_title;
 var y_title;
-var dataIC = [];
-var dataTC = [];
 var datamarkers = ["circle","square","triangle-up"]
-var c_ = 0
-var _c = 0
 var fs = require('fs');
 var SQL = require('sql.js');
-var table
 var device
 var db
 var idPos
 var devicePos
+
+// Builds Initial GUI
+function InitGUI(){
+  // Database file chooser
+  $('body').append(' <div class="form-group"><label class="control-label" for="databaseFile">File</label> <input type="file" id="databaseFile" multiple=""><input type="text" readonly="" class="form-control" placeholder="Choose Database File"></div>')
+  document.getElementById('databaseFile').addEventListener('change', GetDatabaseTables, false);
+  $.material.init()
+}
+
+// Finds all the tables in the database and creates a selector for them
+function GetDatabaseTables(){
+  var filebuffer = fs.readFileSync($(this).val());
+  db = new SQL.Database(filebuffer);
+  // Finds all the tables listed in the master table
+  var res = db.exec("SELECT * FROM sqlite_master WHERE type='table'");
+  // Addes a selector for the tables if it does not already exist
+  if($('#tableSelect').length == 0){
+    $('body').append('<div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" id="tableSelect" data-toggle="dropdown"data-target="#">Choose DIMM Card <span class="caret"></span></button><ul id="tableSelectOptions" class="dropdown-menu"></ul></div>')
+  }
+  // Clears the previews slections if there were any
+  $('#tableSelectOptions').html("")
+  $('#tableSelect').html('Choose DIMM Card <span class="caret"></span>')
+
+  // Loops over master table and adds each chip table to tableSelect
+  for(i=0; i<res[0].values.length; i++){
+    $("#tableSelectOptions").append("<li><a onclick='GetTableData(\""+res[0].values[i][1]+"\")'>"+res[0].values[i][1]+"</a></li>")
+  }
+  $.material.init()
+}
+
+// Gets the devices from the selected chip and adds a selector for them
+function GetTableData(table){
+  $('#tableSelect').html(table+' <span class="caret"></span>')
+  // Array containg all devices on the selected chip
+  var devices = db.exec("SELECT * FROM "+"'"+table+"'")
+  //Get posistion of each device from array
+  idPos = devices[0].columns.indexOf("DeviceIdentifier")
+  if(idPos==-1){
+    idPos=devices[0].columns.indexOf("Device")
+  }
+  // Creates a selector for the devices on the selected chip if it does not already exist
+  if($('#deviceChooser').length == 0){
+    $('body').append('<div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" id="deviceChooser" data-toggle="dropdown"data-target="#">Choose Device <span class="caret"></span></button><ul id="deviceChooserOptions" class="dropdown-menu"></ul></div>')
+  }
+  // Clears the previus selections if there are any
+  $('#deviceChooserOptions').html(" ")
+  $('#deviceChooser').html('Choose Device <span class="caret"></span>')
+  // Clears the selector if it already exists
+  deviceSelectorFill = []
+  // Creates an array for all devices on the selected chip
+  for(i=0; i<devices[0].values.length; i++){
+    deviceSelectorFill.push(devices[0].values[i][idPos])
+  }
+  // loops over the deviceChooserFill array and returns only the unique devices so there are no duplicates
+  uniqueArray = deviceSelectorFill.filter(function(item, pos, self) {
+    return self.indexOf(item) == pos;
+  })
+  // Adds the unique devices to the devices selector
+  for(i=0; i<uniqueArray.length; i++){
+    $("#deviceChooserOptions").append('<li><a onclick="CreateDeviceTable(\''+uniqueArray[i]+'\',\''+table+'\')">'+uniqueArray[i]+'</a></li>')
+  }
+  $.material.init()
+}
+
+// Creates a table for all the data of the selected chip
+function CreateDeviceTable(device,table){
+  $('#deviceChooser').html(device+' <span class="caret"></span>')
+  devicePos = []
+  // gathers all of the devices in the selected table
+  data = db.exec("SELECT * FROM "+"'"+table+"'")
+  // Loops through the devices and creates an array of the posistions of the selected device
+  for(i=0; i<data[0].values.length; i++){
+      if(data[0].values[i].indexOf(device) != -1){
+        devicePos.push(i)
+      }
+  }
+  // See if the database just has 4 wire voltage or contains both 2 wire and 4 wire data
+  if(data[0].columns.indexOf("Voltage") == -1){
+    voltageDataType = "2/4 Wire Voltage"
+  }
+  else{
+    voltageDataType = "Voltage"
+  }
+  var tableData = []
+  var tableHeaders = []
+  var whiteList = []
+  // Creates a table for the selected chips data to be displayed
+  $('body').append('<table id="dataTable" class="table table-hover"></table>')
+  tableHeaders.push("<tr><th>Options</th>")
+  // Loops through all the data points for the selected device and adds table headers for each data catagory
+  for(i=0; i<data[0].columns.length; i++){
+    // Creates a whitelist of data that we don't want to display, the data is normally too big to display and would crash the program
+    if(data[0].columns[i] == "Voltage" || data[0].columns[i] == "Current" || data[0].columns[i] == "Resistance" || data[0].columns[i] == "FourWireVoltage" || data[0].columns[i] == "TwoWireVoltage"){
+      whiteList.push(i)
+    }
+    // Creates a headers array for the different device data points
+    else{
+    tableHeaders.push("<th>"+data[0].columns[i]+"</th>")
+    }
+  }
+  tableHeaders.push("</tr>")
+  // Creates table entries for the device's data
+  for(i=0; i<devicePos.length; i++){
+    // Creates an options menu for interacting with a particualr set of data points
+    if(voltageDataType == "Voltage"){
+      tableData.push('<tr><td><div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></button><ul class="dropdown-menu"><li><button class="btn btn-primary" onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</button></li>')
+      tableData.push('<li><button class="btn btn-primary" onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Current\','+i+')">Copy Current Data</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Voltage\','+i+')">Copy Voltage Data</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</button></li>)')
+      tableData.push('</ul></div></td>')
+    }
+    else{
+      tableData.push('<tr><td><div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></button><ul class="dropdown-menu"><li><button class="btn btn-primary" onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</button></li>')
+      tableData.push('<li><button class="btn btn-primary" onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Current\','+i+')">Copy Current Data</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'4WireVoltage\','+i+')">Copy 4 Wire Voltage Data</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'2WireVoltage\','+i+')">Copy 2 Wire Voltage Data</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</button></li>)')
+      tableData.push('</ul></div></td>')
+    }
+    // Adds the data under the correct header
+    for(i_=0; i_<data[0].values[devicePos[i]].length; i_++){
+            if(whiteList.indexOf(i_) > -1){}
+            else{
+            tableData.push("<td>"+data[0].values[devicePos[i]][i_]+"</td>")
+          }
+    }
+    tableData.push("</tr>")
+  }
+  $('#dataTable').html(tableHeaders+tableData)
+  $.material.init()
+}
+
+// Graphs the current vs voltage of the selected device's measurement using its posistion in the table
+function GraphCurrentVsVoltage(tablePosistion){
+  // Gathers the current and voltage data from the table
+  if(data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Current")].toString().indexOf("\n") > -1){
+  var y_data = data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Current")].split("\n")
+  }
+  else{
+    var y_data = [data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Current")]]
+  }
+  if(data[0].columns.indexOf("Voltage") >= 0){
+    if(data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Voltage")].toString().indexOf("\n")>-1){
+      var x_data = data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Voltage")].split("\n")
+    }
+    else{
+      var x_data = [data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Voltage")]]
+    }
+  }
+  else{
+    if(data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("4WireVoltage")].toString().indexOf("\n")>-1){
+      var x_data = data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("4WireVoltage")].split("\n")
+    }
+    else{
+      var x_data = [data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("4WireVoltage")]]
+    }
+  }
+  GraphData("Current (A)","Voltage (V)", x_data, y_data, "Current Vs Voltage")
+}
+
+// Graphs the current vs resistance of the selected device's measurement using its posistion in the table
+function GraphCurrentVsResistance(tablePosistion){
+  // Gathers the current and resistance data from the table
+  if(data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Current")].toString().indexOf("\n") > -1){
+  var y_data = data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Resistance")].split("\n")
+  }
+  else{
+    var y_data = [data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Resistance")]]
+  }
+  if(data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Current")].toString().indexOf("\n")>-1){
+    var x_data = data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Current")].split("\n")
+  }
+  else{
+    var x_data = [data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("Current")]]
+  }
+  GraphData("Current (A)","Resistance (Ohms)", x_data, y_data, "Current Vs Resistance")
+}
+
+// Graphs the given data
+function GraphData(x_title, y_title, x_data, y_data, graphTitle){
+  if($('#dataGraph').length == 0){
+    $('body').append('<div id="dataGraph"></div>')
+  }
+  dataToGraph = []
+  dataToGraph.push({
+      x: x_data,
+      y: y_data,
+      name: document.getElementById("deviceChooser").value,
+      mode: 'lines+markers',
+      type: 'scatter',
+  });
+  // Layout settings for the graph
+  var layout = {
+    width: 700,
+    height: 600,
+      xaxis: {
+          title: x_title,
+          showgrid: true,
+          showline: true,
+          mirror: 'ticks',
+          gridcolor: '#bdbdbd',
+          linecolor: '#636363',
+          linewidth: 2,
+          autotick: true,
+          ticks: 'inside',
+          tick0: 0,
+          ticklen: 8,
+          tickwidth: 4,
+          tickcolor: '#000'
+      },
+      yaxis: {
+          title: y_title,
+          showgrid: true,
+          showline: true,
+          mirror: 'ticks',
+          gridcolor: '#bdbdbd',
+          linecolor: '#636363',
+          linewidth: 2,
+          autotick: true,
+          ticks: 'inside',
+          tick0: 0,
+          ticklen: 8,
+          tickwidth: 4,
+          tickcolor: '#000'
+      },
+      font: {
+    family:"Droid Serif, serif",
+    size: 18,
+      },
+      showlegend:true,
+      title:graphTitle
+  }
+    Plotly.newPlot('dataGraph', dataToGraph, layout);
+    // Automaticaly takes the user to the graph
+    $('html, body').animate({
+    scrollTop: $("#dataGraph").offset().top
+}, 1000);
+}
+
+// Copies data to clipboard
+function CopyData(dataType, tablePosistion){
+  clipboard.copy(data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf(dataType)]).then(
+    function(){console.log("success");
+    $.snackbar({content: "Copied Data!"});
+  },
+    function(err){console.log("failure", err);
+    $.snackbar({content: "Error Copying Data :()"});
+  }
+);
+}
 
 // Get more inforamtion from selected device and graphs the current vs voltage and current vs resistance
 function MoreInfo(num){
@@ -26,8 +272,6 @@ function MoreInfo(num){
   textBoxFiller.push("<button id='copyCurrent'>Copy Current Data</button>")
   // Checks if the data contains two wire voltage data
   if(data[0].columns.indexOf("Voltage") == -1){
-    textBoxFiller.push("<button id='copy4WireVoltage'>Copy 4 Wire Voltage Data</button>")
-    textBoxFiller.push("<button id='copy2WireVoltage'>Copy 2 Wire Voltage Data</button>")
     plotThis = "FourWireVoltage"
   }
   else{
@@ -75,232 +319,120 @@ function MoreInfo(num){
   var dataYZ = []
   if(data[0].values[devicePos[num]][data[0].columns.indexOf("Current")].toString().indexOf("\n") > -1){
   var y_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Current")].split("\n")
-}
-else{
-  var y_data = [data[0].values[devicePos[num]][data[0].columns.indexOf("Current")]]
-}
-if(data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)].toString().indexOf("\n")>-1){
-  var x_data = data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)].split("\n")
-}
-else{
-  var x_data = [data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)]]
-}
-if(data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")].toString().indexOf("\n")>-1){
-  var z_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")].split("\n")
-}
-else{
-  var z_data = [data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")]]
-}
-  dataYZ.push({
-      y: z_data,
-      x: y_data,
-      name: document.getElementById("deviceChooser").value,
-      mode: 'lines+markers',
-      type: 'scatter',
-  });
-  dataXY.push({
-      x: x_data,
-      y: y_data,
-      name: document.getElementById("deviceChooser").value,
-      mode: 'lines+markers',
-      type: 'scatter',
-  });
-  var layout = {
-    width: 700,
-    height: 600,
-      xaxis: {
-          title: "Voltage (V)",
-          showgrid: true,
-          showline: true,
-          mirror: 'ticks',
-          gridcolor: '#bdbdbd',
-          linecolor: '#636363',
-          linewidth: 2,
-          autotick: true,
-          ticks: 'inside',
-          tick0: 0,
-          ticklen: 8,
-          tickwidth: 4,
-          tickcolor: '#000'
-      },
-      yaxis: {
-          title: "Current (A)",
-          showgrid: true,
-          showline: true,
-          mirror: 'ticks',
-          gridcolor: '#bdbdbd',
-          linecolor: '#636363',
-          linewidth: 2,
-          autotick: true,
-          ticks: 'inside',
-          tick0: 0,
-          ticklen: 8,
-          tickwidth: 4,
-          tickcolor: '#000'
-      },
-      font: {
-    family:"Droid Serif, serif",
-    size: 18,
-      },
-      showlegend:true,
-      title:"Current Vs Voltage"
   }
-  var layout2 = {
-    width: 700,
-    height: 600,
-      xaxis: {
-          title: "Current (A)",
-          showgrid: true,
-          showline: true,
-          mirror: 'ticks',
-          gridcolor: '#bdbdbd',
-          linecolor: '#636363',
-          linewidth: 2,
-          autotick: true,
-          ticks: 'inside',
-          tick0: 0,
-          ticklen: 8,
-          tickwidth: 4,
-          tickcolor: '#000'
-      },
-      yaxis: {
-          title: "Resistance (Ohms)",
-          showgrid: true,
-          showline: true,
-          mirror: 'ticks',
-          gridcolor: '#bdbdbd',
-          linecolor: '#636363',
-          linewidth: 2,
-          autotick: true,
-          ticks: 'inside',
-          tick0: 0,
-          ticklen: 8,
-          tickwidth: 4,
-          tickcolor: '#000'
-      },
-      font: {
-    family:"Droid Serif, serif",
-    size: 18,
-      },
-      showlegend:true,
-      title:"Current Vs Resistance"
+  else{
+    var y_data = [data[0].values[devicePos[num]][data[0].columns.indexOf("Current")]]
   }
-  Plotly.newPlot('plot', dataXY, layout);
-  Plotly.newPlot('plot2', dataYZ, layout2);
-}
+  if(data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)].toString().indexOf("\n")>-1){
+    var x_data = data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)].split("\n")
+  }
+  else{
+    var x_data = [data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)]]
+  }
+  if(data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")].toString().indexOf("\n")>-1){
+    var z_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")].split("\n")
+  }
+  else{
+    var z_data = [data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")]]
+  }
+    dataYZ.push({
+        y: z_data,
+        x: y_data,
+        name: document.getElementById("deviceChooser").value,
+        mode: 'lines+markers',
+        type: 'scatter',
+    });
+    dataXY.push({
+        x: x_data,
+        y: y_data,
+        name: document.getElementById("deviceChooser").value,
+        mode: 'lines+markers',
+        type: 'scatter',
+    });
+    var layout = {
+      width: 700,
+      height: 600,
+        xaxis: {
+            title: "Voltage (V)",
+            showgrid: true,
+            showline: true,
+            mirror: 'ticks',
+            gridcolor: '#bdbdbd',
+            linecolor: '#636363',
+            linewidth: 2,
+            autotick: true,
+            ticks: 'inside',
+            tick0: 0,
+            ticklen: 8,
+            tickwidth: 4,
+            tickcolor: '#000'
+        },
+        yaxis: {
+            title: "Current (A)",
+            showgrid: true,
+            showline: true,
+            mirror: 'ticks',
+            gridcolor: '#bdbdbd',
+            linecolor: '#636363',
+            linewidth: 2,
+            autotick: true,
+            ticks: 'inside',
+            tick0: 0,
+            ticklen: 8,
+            tickwidth: 4,
+            tickcolor: '#000'
+        },
+        font: {
+      family:"Droid Serif, serif",
+      size: 18,
+        },
+        showlegend:true,
+        title:"Current Vs Voltage"
+    }
+    var layout2 = {
+      width: 700,
+      height: 600,
+        xaxis: {
+            title: "Current (A)",
+            showgrid: true,
+            showline: true,
+            mirror: 'ticks',
+            gridcolor: '#bdbdbd',
+            linecolor: '#636363',
+            linewidth: 2,
+            autotick: true,
+            ticks: 'inside',
+            tick0: 0,
+            ticklen: 8,
+            tickwidth: 4,
+            tickcolor: '#000'
+        },
+        yaxis: {
+            title: "Resistance (Ohms)",
+            showgrid: true,
+            showline: true,
+            mirror: 'ticks',
+            gridcolor: '#bdbdbd',
+            linecolor: '#636363',
+            linewidth: 2,
+            autotick: true,
+            ticks: 'inside',
+            tick0: 0,
+            ticklen: 8,
+            tickwidth: 4,
+            tickcolor: '#000'
+        },
+        font: {
+      family:"Droid Serif, serif",
+      size: 18,
+        },
+        showlegend:true,
+        title:"Current Vs Resistance"
+    }
+    Plotly.newPlot('plot', dataXY, layout);
+    Plotly.newPlot('plot2', dataYZ, layout2);
+  }
 
 $( document ).ready(function() {
-  $("#displayResults").click(function(){
-  devicePos = []
-  device=$("#deviceChooser").val()
-  data = db.exec("SELECT * FROM "+"'"+table+"'")
-  for(i=0; i<data[0].values.length; i++){
-      if(data[0].values[i].indexOf(device) != -1){
-        devicePos.push(i)
-      }
-  }
-  var tableData = []
-  var tableHeaders = []
-  var whiteList = []
-  tableHeaders.push("<tr><th> </th>")
-  for(i=0; i<data[0].columns.length; i++){
-    if(data[0].columns[i] == "Voltage" || data[0].columns[i] == "Current" || data[0].columns[i] == "Resistance" || data[0].columns[i] == "FourWireVoltage" || data[0].columns[i] == "TwoWireVoltage"){
-      whiteList.push(i)
-    }
-    else{
-    tableHeaders.push("<th>"+data[0].columns[i]+"</th>")
-  }
-}
-  tableHeaders.push("</tr>")
-  for(i=0; i<devicePos.length; i++){
-    tableData.push("<tr><td><button id="+i+" onclick='MoreInfo("+i+")'>More Information</button></td>")
-    for(i_=0; i_<data[0].values[devicePos[i]].length; i_++){
-            if(whiteList.indexOf(i_) > -1){}
-            else{
-            tableData.push("<td>"+data[0].values[devicePos[i]][i_]+"</td>")
-          }
-    }
-    tableData.push("</tr>")
-  }
-  $('#dataTable').html(tableHeaders+tableData)
-})
-$("#deviceChooser").change(function () {});
-$("#tableChooser").change(function () {
-  table = $(this).val()
-  GetTableData(table)
-});
-function GetTableData(table){
-  var data = db.exec("SELECT * FROM "+"'"+table+"'")
-  //Get posistion of DeviceIdentifier from array
-  idPos = data[0].columns.indexOf("DeviceIdentifier")
-  if(idPos==-1){
-    idPos=data[0].columns.indexOf("Device")
-  }
-  deviceChooserFill = []
-  for(i=0; i<data[0].values.length; i++){
-    deviceChooserFill.push(data[0].values[i][idPos])
-  }
-  uniqueArray = deviceChooserFill.filter(function(item, pos, self) {
-    return self.indexOf(item) == pos;
-})
-for(i=0; i<uniqueArray.length; i++){uniqueArray[i]="<option>"+uniqueArray[i]+"</option>"}
-  $("#deviceChooser").html("<option></option>"+uniqueArray)
-}
-function GetTables(db){
-  var res = db.exec("SELECT * FROM sqlite_master WHERE type='table'");
-  tableChooserFill = []
-  for(i=0; i<res[0].values.length; i++){
-    tableChooserFill.push("<option>"+res[0].values[i][1]+"</option>")
-  }
-  $("#tableChooser").html("<option></option>"+tableChooserFill)
-}
-    graphCounter++;
-    function PlotCSVFile() {
-        var stream = fs.createReadStream($('#csvFile').val());
-        var counter = 0
-        csv
-            .fromStream(stream)
-            .on("data", function (data) {
-                console.log(data);
-                if(counter == 0){
-                    x_title = data[0]
-                    y_title = data[1]
-                    counter = 1
-                }
-                else {
-                    x_data.push(data[0])
-                    y_data.push(data[1])
-                }
-            })
-            .on("end", function () {
-                alert("Plotting CSV File(s)")
-                var trace1 = {
-                    x: x_data,
-                    y: y_data,
-                    name: "Current Vs Voltage",
-                    mode: 'markers',
-                    type: 'scatter'
-                };
-                var layout = {
-                    xaxis: {
-                        title: x_title
-                    },
-                    yaxis: {
-                        title: y_title
-                    },
-                    showlegend:true
-                }
-
-                var data = [trace1];
-                Plotly.newPlot('jjPlot', data, layout);
-                console.log("done");
-            });
-    }
-    function PlotFile(){
-          var filebuffer = fs.readFileSync($(this).val());
-          db = new SQL.Database(filebuffer);
-          GetTables(db)
-    }
-    document.getElementById('fileToPlot').addEventListener('change', PlotFile, false);
-
+  InitGUI();
 });
