@@ -3,9 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Harry Plotter</title>
-    <script src="jquery-1.12.3.min.js"></script>
+    <!-- Material Design Fonts -->
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/icon?family=Material+Icons">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap/dist/css/bootstrap.css">
+
+    <!-- Bootstrap Material Design CSS-->
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap-material-design/dist/css/bootstrap-material-design.css">
+    <link rel="stylesheet" type="text/css" href="bower_components/bootstrap-material-design/dist/css/ripples.css">
+
+    <!-- jQuery Javascript-->
+    <script src='bower_components/jquery/dist/jquery.js'></script>
+
+    <!-- Bootstrap Javascript -->
+    <script src="bower_components/bootstrap-material-design/dist/js/material.js"></script>
+    <script src="bower_components/bootstrap-material-design/dist/js/ripples.js"></script>
+
+    <!-- Clipboard.js and Plot.ly -->
     <script src="clipboard.js"></script>
     <script src="plotly.js"></script>
+
+    <!-- My Javascript-->
+
     <script src="script.js"></script>
 </head>
 
@@ -16,7 +37,7 @@
 Choose DIMM Card<br>
   <select id="tableChooser"></select><br>
   Choose Device<br>
-  <select id="deviceChooser"></select><br>
+  <label for="deviceChooser">Choose Device</label> <select id="deviceChooser" class="form-control scriptInput"></select><br>
   <button class="" id="displayResults">Show Results</button><br>
   <table id="dataTable"></table><br>
   <div id="textBoxHolder" style="width: 50%; height: 100%;"></div><br>

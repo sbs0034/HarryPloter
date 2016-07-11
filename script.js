@@ -18,28 +18,23 @@ var device
 var db
 var idPos
 var devicePos
+
+// Get more inforamtion from selected device and graphs the current vs voltage and current vs resistance
 function MoreInfo(num){
   var textBoxFiller = []
   var plotThis = ""
   textBoxFiller.push("<button id='copyCurrent'>Copy Current Data</button>")
+  // Checks if the data contains two wire voltage data
   if(data[0].columns.indexOf("Voltage") == -1){
     textBoxFiller.push("<button id='copy4WireVoltage'>Copy 4 Wire Voltage Data</button>")
     textBoxFiller.push("<button id='copy2WireVoltage'>Copy 2 Wire Voltage Data</button>")
-    // textBoxFiller.push("4 Wire Voltage<br>")
-    // textBoxFiller.push("<textarea style='width: 45%; height: 100px;'>"+data[0].values[devicePos[num]][data[0].columns.indexOf("FourWireVoltage")]+"</textarea><br>")
-    // textBoxFiller.push("2 Wire Voltage<br>")
-    // textBoxFiller.push("<textarea style='width: 45%; height: 100px;'>"+data[0].values[devicePos[num]][data[0].columns.indexOf("TwoWireVoltage")]+"</textarea><br>")
     plotThis = "FourWireVoltage"
   }
   else{
     plotThis = "Voltage"
     textBoxFiller.push("<button id='copyVoltage'>Copy Voltage Data</button>")
-  // textBoxFiller.push("Voltage<br>")
-  // textBoxFiller.push("<textarea style='width: 45%; height: 100px;'>"+data[0].values[devicePos[num]][data[0].columns.indexOf("Voltage")]+"</textarea><br>")
-}
-textBoxFiller.push("<button id='copyResistance'>Copy Resistance Data</button>")
-  // textBoxFiller.push("Resistance<br>")
-  // textBoxFiller.push("<textarea style='width: 45%; height: 100px;'>"+data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")]+"</textarea><br>")
+  }
+  textBoxFiller.push("<button id='copyResistance'>Copy Resistance Data</button>")
   $('#textBoxHolder').html(textBoxFiller)
   if(plotThis == "FourWireVoltage"){
     document.getElementById("copy4WireVoltage").addEventListener('click',function(){
