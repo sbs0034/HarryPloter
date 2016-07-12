@@ -125,7 +125,7 @@ function CreateDeviceTable(device,table){
       tableData=tableData+('</ul></div></td>')
     }
     else{
-      tableData=tableData+('<tr><td><div class="dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></a><ul class="dropdown-menu"><li><button class="btn btn-primary" onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</button></li>')
+      tableData=tableData+('<tr><td><div class="dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></a><ul class="dropdown-menu"><li><a onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</a></li>')
       tableData=tableData+('<li><a onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
       tableData=tableData+('<li><a onclick="CopyData(\'Current\','+i+')">Copy Current Data</a></li>)')
       tableData=tableData+('<li><a onclick="CopyData(\'FourWireVoltage\','+i+')">Copy 4 Wire Voltage Data</a></li>)')
