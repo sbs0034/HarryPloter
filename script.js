@@ -117,7 +117,7 @@ function CreateDeviceTable(device,table){
   for(i=0; i<devicePos.length; i++){
     // Creates an options menu for interacting with a particualr set of data points
     if(voltageDataType == "Voltage"){
-      tableData=tableData+('<tr><td><div class="dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></a><ul class="dropdown-menu"><li><a onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</a></li>')
+      tableData=tableData+('<tr><td><div class="dropdown"><a  class="dropdown-toggle" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></a><ul class="dropdown-menu"><li><a onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</a></li>')
       tableData=tableData+('<li><a onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</a></li>')
       tableData=tableData+('<li><a onclick="CopyData(\'Current\','+i+')">Copy Current Data</a></li>')
       tableData=tableData+('<li><a onclick="CopyData(\'Voltage\','+i+')">Copy Voltage Data</a></li>')
