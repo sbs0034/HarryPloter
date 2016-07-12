@@ -16,7 +16,7 @@ var devicePos
 // Builds Initial GUI
 function InitGUI(){
   // Database file chooser
-  $('body').append(' <div class="form-group"><label class="control-label" for="databaseFile">File</label> <input type="file" id="databaseFile" multiple=""><input type="text" readonly="" class="form-control" placeholder="Choose Database File"></div>')
+  $('body').append(' <div class="form-group" style="width: 20%;"><label class="control-label" for="databaseFile">File</label> <input type="file" id="databaseFile" multiple=""><input type="text" readonly="" class="form-control" placeholder="Choose Database File"></div>')
   document.getElementById('databaseFile').addEventListener('change', GetDatabaseTables, false);
   $.material.init()
 }
@@ -29,7 +29,7 @@ function GetDatabaseTables(){
   var res = db.exec("SELECT * FROM sqlite_master WHERE type='table'");
   // Addes a selector for the tables if it does not already exist
   if($('#tableSelect').length == 0){
-    $('body').append('<div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" id="tableSelect" data-toggle="dropdown"data-target="#">Choose DIMM Card <span class="caret"></span></button><ul id="tableSelectOptions" class="dropdown-menu"></ul></div>')
+    $('body').append('<div class="dropdown" style="display: inline; float: left"><button class="dropdown-toggle btn btn-default" href="#" id="tableSelect" data-toggle="dropdown"data-target="#">Choose DIMM Card <span class="caret"></span></button><ul id="tableSelectOptions" class="dropdown-menu"></ul></div>')
   }
   // Clears the previews slections if there were any
   $('#tableSelectOptions').html("")
@@ -54,7 +54,7 @@ function GetTableData(table){
   }
   // Creates a selector for the devices on the selected chip if it does not already exist
   if($('#deviceChooser').length == 0){
-    $('body').append('<div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" id="deviceChooser" data-toggle="dropdown"data-target="#">Choose Device <span class="caret"></span></button><ul id="deviceChooserOptions" class="dropdown-menu"></ul></div>')
+    $('body').append('<div class="dropdown" style="display: inline; float: left""><button class="dropdown-toggle btn btn-default" href="#" id="deviceChooser" data-toggle="dropdown"data-target="#">Choose Device <span class="caret"></span></button><ul id="deviceChooserOptions" class="dropdown-menu"></ul></div>')
   }
   // Clears the previus selections if there are any
   $('#deviceChooserOptions').html(" ")
@@ -99,7 +99,7 @@ function CreateDeviceTable(device,table){
   var tableHeaders = []
   var whiteList = []
   // Creates a table for the selected chips data to be displayed
-  $('body').append('<table id="dataTable" class="table table-hover"></table>')
+  $('body').append('<table id="dataTable" class="table table-hover table-striped"></table>')
   tableHeaders.push("<tr><th>Options</th>")
   // Loops through all the data points for the selected device and adds table headers for each data catagory
   for(i=0; i<data[0].columns.length; i++){
@@ -117,7 +117,7 @@ function CreateDeviceTable(device,table){
   for(i=0; i<devicePos.length; i++){
     // Creates an options menu for interacting with a particualr set of data points
     if(voltageDataType == "Voltage"){
-      tableData=tableData+('<tr><td><div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></button><ul class="dropdown-menu"><li><a onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</a></li>')
+      tableData=tableData+('<tr><td><div class="dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></a><ul class="dropdown-menu"><li><a onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</a></li>')
       tableData=tableData+('<li><a onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</a></li>')
       tableData=tableData+('<li><a onclick="CopyData(\'Current\','+i+')">Copy Current Data</a></li>')
       tableData=tableData+('<li><a onclick="CopyData(\'Voltage\','+i+')">Copy Voltage Data</a></li>')
