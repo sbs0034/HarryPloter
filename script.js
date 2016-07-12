@@ -126,11 +126,11 @@ function CreateDeviceTable(device,table){
     }
     else{
       tableData=tableData+('<tr><td><div class="dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></a><ul class="dropdown-menu"><li><button class="btn btn-primary" onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</button></li>')
-      tableData=tableData+('<li><button class="btn btn-primary" onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
-      tableData=tableData+('<li><button class="btn btn-primary" onclick="CopyData(\'Current\','+i+')">Copy Current Data</button></li>)')
-      tableData=tableData+('<li><button class="btn btn-primary" onclick="CopyData(\'FourWireVoltage\','+i+')">Copy 4 Wire Voltage Data</button></li>)')
-      tableData=tableData+('<li><button class="btn btn-primary" onclick="CopyData(\'TwoWireVoltage\','+i+')">Copy 2 Wire Voltage Data</button></li>)')
-      tableData=tableData+('<li><button class="btn btn-primary" onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</button></li>)')
+      tableData=tableData+('<li><a onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
+      tableData=tableData+('<li><a onclick="CopyData(\'Current\','+i+')">Copy Current Data</a></li>)')
+      tableData=tableData+('<li><a onclick="CopyData(\'FourWireVoltage\','+i+')">Copy 4 Wire Voltage Data</a></li>)')
+      tableData=tableData+('<li><a onclick="CopyData(\'TwoWireVoltage\','+i+')">Copy 2 Wire Voltage Data</a></li>)')
+      tableData=tableData+('<li><a onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</a></li>)')
       tableData=tableData+('</ul></div></td>')
     }
     // Adds the data under the correct header
