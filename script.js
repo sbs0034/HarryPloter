@@ -95,7 +95,7 @@ function CreateDeviceTable(device,table){
   else{
     voltageDataType = "Voltage"
   }
-  var tableData = []
+  var tableData = ""
   var tableHeaders = []
   var whiteList = []
   // Creates a table for the selected chips data to be displayed
@@ -117,30 +117,30 @@ function CreateDeviceTable(device,table){
   for(i=0; i<devicePos.length; i++){
     // Creates an options menu for interacting with a particualr set of data points
     if(voltageDataType == "Voltage"){
-      tableData.push('<tr><td><div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></button><ul class="dropdown-menu"><li><button class="btn btn-primary" onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</button></li>')
-      tableData.push('<li><button class="btn btn-primary" onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Current\','+i+')">Copy Current Data</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Voltage\','+i+')">Copy Voltage Data</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</button></li>)')
-      tableData.push('</ul></div></td>')
+      tableData=tableData+('<tr><td><div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></button><ul class="dropdown-menu"><li><a onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</a></li>')
+      tableData=tableData+('<li><a onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</a></li>')
+      tableData=tableData+('<li><a onclick="CopyData(\'Current\','+i+')">Copy Current Data</a></li>')
+      tableData=tableData+('<li><a onclick="CopyData(\'Voltage\','+i+')">Copy Voltage Data</a></li>')
+      tableData=tableData+('<li><a onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</a></li>')
+      tableData=tableData+('</ul></div></td>')
     }
     else{
-      tableData.push('<tr><td><div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></button><ul class="dropdown-menu"><li><button class="btn btn-primary" onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</button></li>')
-      tableData.push('<li><button class="btn btn-primary" onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Current\','+i+')">Copy Current Data</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'FourWireVoltage\','+i+')">Copy 4 Wire Voltage Data</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'TwoWireVoltage\','+i+')">Copy 2 Wire Voltage Data</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</button></li>)')
-      tableData.push('</ul></div></td>')
+      tableData=tableData+('<tr><td><div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></button><ul class="dropdown-menu"><li><button class="btn btn-primary" onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</button></li>')
+      tableData=tableData+('<li><button class="btn btn-primary" onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
+      tableData=tableData+('<li><button class="btn btn-primary" onclick="CopyData(\'Current\','+i+')">Copy Current Data</button></li>)')
+      tableData=tableData+('<li><button class="btn btn-primary" onclick="CopyData(\'FourWireVoltage\','+i+')">Copy 4 Wire Voltage Data</button></li>)')
+      tableData=tableData+('<li><button class="btn btn-primary" onclick="CopyData(\'TwoWireVoltage\','+i+')">Copy 2 Wire Voltage Data</button></li>)')
+      tableData=tableData+('<li><button class="btn btn-primary" onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</button></li>)')
+      tableData=tableData+('</ul></div></td>')
     }
     // Adds the data under the correct header
     for(i_=0; i_<data[0].values[devicePos[i]].length; i_++){
             if(whiteList.indexOf(i_) > -1){}
             else{
-            tableData.push("<td>"+data[0].values[devicePos[i]][i_]+"</td>")
+            tableData=tableData+("<td>"+data[0].values[devicePos[i]][i_]+"</td>")
           }
     }
-    tableData.push("</tr>")
+    tableData=tableData+("</tr>")
   }
   $('#dataTable').html(tableHeaders+tableData)
   $.material.init()
