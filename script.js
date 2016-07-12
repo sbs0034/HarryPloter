@@ -164,11 +164,11 @@ function GraphCurrentVsVoltage(tablePosistion){
     }
   }
   else{
-    if(data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("4WireVoltage")].toString().indexOf("\n")>-1){
-      var x_data = data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("4WireVoltage")].split("\n")
+    if(data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("FourWireVoltage")].toString().indexOf("\n")>-1){
+      var x_data = data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("FourWireVoltage")].split("\n")
     }
     else{
-      var x_data = [data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("4WireVoltage")]]
+      var x_data = [data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("FourWireVoltage")]]
     }
   }
   GraphData("Current (A)","Voltage (V)", x_data, y_data, "Current Vs Voltage")
