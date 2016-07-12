@@ -128,8 +128,8 @@ function CreateDeviceTable(device,table){
       tableData.push('<tr><td><div class="dropdown"><button class="dropdown-toggle btn btn-default" href="#" data-toggle="dropdown"data-target="#">Options <span class="caret"></span></button><ul class="dropdown-menu"><li><button class="btn btn-primary" onclick="GraphCurrentVsVoltage('+i+')">Graph Current Vs Voltage</button></li>')
       tableData.push('<li><button class="btn btn-primary" onclick="GraphCurrentVsResistance('+i+')">Graph Current Vs Resistance</button></li>)')
       tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Current\','+i+')">Copy Current Data</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'4WireVoltage\','+i+')">Copy 4 Wire Voltage Data</button></li>)')
-      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'2WireVoltage\','+i+')">Copy 2 Wire Voltage Data</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'FourWireVoltage\','+i+')">Copy 4 Wire Voltage Data</button></li>)')
+      tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'TwoWireVoltage\','+i+')">Copy 2 Wire Voltage Data</button></li>)')
       tableData.push('<li><button class="btn btn-primary" onclick="CopyData(\'Resistance\','+i+')">Copy Resistance Data</button></li>)')
       tableData.push('</ul></div></td>')
     }
