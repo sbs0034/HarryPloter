@@ -171,7 +171,7 @@ function GraphCurrentVsVoltage(tablePosistion){
       var x_data = [data[0].values[devicePos[tablePosistion]][data[0].columns.indexOf("FourWireVoltage")]]
     }
   }
-  GraphData("Current (A)","Voltage (V)", x_data, y_data, "Current Vs Voltage")
+  GraphData("Voltage (V)","Current (A)", x_data, y_data, "Current Vs Voltage")
 }
 
 // Graphs the current vs resistance of the selected device's measurement using its posistion in the table
@@ -201,7 +201,7 @@ function GraphData(x_title, y_title, x_data, y_data, graphTitle){
   dataToGraph.push({
       x: x_data,
       y: y_data,
-      name: document.getElementById("deviceChooser").value,
+      name: $('#deviceChooser').html().split(" ")[0],
       mode: 'lines+markers',
       type: 'scatter',
   });
@@ -265,174 +265,7 @@ function CopyData(dataType, tablePosistion){
 );
 }
 
-// Get more inforamtion from selected device and graphs the current vs voltage and current vs resistance
-function MoreInfo(num){
-  var textBoxFiller = []
-  var plotThis = ""
-  textBoxFiller.push("<button id='copyCurrent'>Copy Current Data</button>")
-  // Checks if the data contains two wire voltage data
-  if(data[0].columns.indexOf("Voltage") == -1){
-    plotThis = "FourWireVoltage"
-  }
-  else{
-    plotThis = "Voltage"
-    textBoxFiller.push("<button id='copyVoltage'>Copy Voltage Data</button>")
-  }
-  textBoxFiller.push("<button id='copyResistance'>Copy Resistance Data</button>")
-  $('#textBoxHolder').html(textBoxFiller)
-  if(plotThis == "FourWireVoltage"){
-    document.getElementById("copy4WireVoltage").addEventListener('click',function(){
-      clipboard.copy(data[0].values[devicePos[num]][data[0].columns.indexOf("FourWireVoltage")]).then(
-        function(){console.log("success");},
-        function(err){console.log("failure", err);}
-      );
-    })
-    document.getElementById("copy2WireVoltage").addEventListener('click',function(){
-      clipboard.copy(data[0].values[devicePos[num]][data[0].columns.indexOf("TwoWireVoltage")]).then(
-        function(){console.log("success");},
-        function(err){console.log("failure", err);}
-      );
-    })
-  }
-  else{
-    document.getElementById("copyVoltage").addEventListener('click',function(){
-      clipboard.copy(data[0].values[devicePos[num]][data[0].columns.indexOf("Voltage")]).then(
-        function(){console.log("success");},
-        function(err){console.log("failure", err);}
-      );
-    })
-  }
-  document.getElementById("copyResistance").addEventListener('click',function(){
-    clipboard.copy(data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")]).then(
-      function(){console.log("success");},
-      function(err){console.log("failure", err);}
-    );
-  })
-  document.getElementById("copyCurrent").addEventListener('click',function(){
-    clipboard.copy(data[0].values[devicePos[num]][data[0].columns.indexOf("Current")]).then(
-      function(){console.log("success");},
-      function(err){console.log("failure", err);}
-    );
-  })
-  // Grpahing Current Vs Voltage
-  var dataXY = []
-  var dataYZ = []
-  if(data[0].values[devicePos[num]][data[0].columns.indexOf("Current")].toString().indexOf("\n") > -1){
-  var y_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Current")].split("\n")
-  }
-  else{
-    var y_data = [data[0].values[devicePos[num]][data[0].columns.indexOf("Current")]]
-  }
-  if(data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)].toString().indexOf("\n")>-1){
-    var x_data = data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)].split("\n")
-  }
-  else{
-    var x_data = [data[0].values[devicePos[num]][data[0].columns.indexOf(plotThis)]]
-  }
-  if(data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")].toString().indexOf("\n")>-1){
-    var z_data = data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")].split("\n")
-  }
-  else{
-    var z_data = [data[0].values[devicePos[num]][data[0].columns.indexOf("Resistance")]]
-  }
-    dataYZ.push({
-        y: z_data,
-        x: y_data,
-        name: document.getElementById("deviceChooser").value,
-        mode: 'lines+markers',
-        type: 'scatter',
-    });
-    dataXY.push({
-        x: x_data,
-        y: y_data,
-        name: document.getElementById("deviceChooser").value,
-        mode: 'lines+markers',
-        type: 'scatter',
-    });
-    var layout = {
-      width: 700,
-      height: 600,
-        xaxis: {
-            title: "Voltage (V)",
-            showgrid: true,
-            showline: true,
-            mirror: 'ticks',
-            gridcolor: '#bdbdbd',
-            linecolor: '#636363',
-            linewidth: 2,
-            autotick: true,
-            ticks: 'inside',
-            tick0: 0,
-            ticklen: 8,
-            tickwidth: 4,
-            tickcolor: '#000'
-        },
-        yaxis: {
-            title: "Current (A)",
-            showgrid: true,
-            showline: true,
-            mirror: 'ticks',
-            gridcolor: '#bdbdbd',
-            linecolor: '#636363',
-            linewidth: 2,
-            autotick: true,
-            ticks: 'inside',
-            tick0: 0,
-            ticklen: 8,
-            tickwidth: 4,
-            tickcolor: '#000'
-        },
-        font: {
-      family:"Droid Serif, serif",
-      size: 18,
-        },
-        showlegend:true,
-        title:"Current Vs Voltage"
-    }
-    var layout2 = {
-      width: 700,
-      height: 600,
-        xaxis: {
-            title: "Current (A)",
-            showgrid: true,
-            showline: true,
-            mirror: 'ticks',
-            gridcolor: '#bdbdbd',
-            linecolor: '#636363',
-            linewidth: 2,
-            autotick: true,
-            ticks: 'inside',
-            tick0: 0,
-            ticklen: 8,
-            tickwidth: 4,
-            tickcolor: '#000'
-        },
-        yaxis: {
-            title: "Resistance (Ohms)",
-            showgrid: true,
-            showline: true,
-            mirror: 'ticks',
-            gridcolor: '#bdbdbd',
-            linecolor: '#636363',
-            linewidth: 2,
-            autotick: true,
-            ticks: 'inside',
-            tick0: 0,
-            ticklen: 8,
-            tickwidth: 4,
-            tickcolor: '#000'
-        },
-        font: {
-      family:"Droid Serif, serif",
-      size: 18,
-        },
-        showlegend:true,
-        title:"Current Vs Resistance"
-    }
-    Plotly.newPlot('plot', dataXY, layout);
-    Plotly.newPlot('plot2', dataYZ, layout2);
-  }
-
+// Waits until the DOM is loaded
 $( document ).ready(function() {
   InitGUI();
 });
