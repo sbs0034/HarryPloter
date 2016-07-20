@@ -1,6 +1,9 @@
 {
   "main": "index.html",
   "name": "HarryPlotter",
-  "window": {},
+  "window": {
+    "width": 1920,
+    "height": 1080
+  },
   "dependencies": {}
 }

@@ -194,8 +194,11 @@ function GraphCurrentVsResistance(tablePosistion){
 
 // Graphs the given data
 function GraphData(x_title, y_title, x_data, y_data, graphTitle){
+  //TODO: Needs ability to graph CC, RN, and RG of JJ plots
+  // Try starting with finding the critical current
   if($('#dataGraph').length == 0){
     $('body').append('<div id="dataGraph"></div>')
+    $('body').append('<button class="btn btn-raised btn-success" onclick="ClearGraph()">Clear Graph</button>')
   }
   dataToGraph = []
   dataToGraph.push({
@@ -246,11 +249,23 @@ function GraphData(x_title, y_title, x_data, y_data, graphTitle){
       showlegend:true,
       title:graphTitle
   }
+  if($('#dataGraph').html()==""){
     Plotly.newPlot('dataGraph', dataToGraph, layout);
+  }
+  else{
+    Plotly.plot('dataGraph', dataToGraph, layout);
+  }
     // Automaticaly takes the user to the graph
     $('html, body').animate({
     scrollTop: $("#dataGraph").offset().top
 }, 1000);
+  function FindCC(dataArray){
+  }
+}
+
+// Clears the graph
+function ClearGraph(){
+  $('#dataGraph').html("")
 }
 
 // Copies data to clipboard
